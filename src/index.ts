@@ -8,8 +8,8 @@ import { Circle, clear, fillCircle } from "./draw"
 	canvas.height = window.innerHeight
 	canvas.width = window.innerWidth
 
-	const height = canvas.height
-	const width = canvas.width
+	let height = canvas.height
+	let width = canvas.width
 	const PI = Math.PI
 
 	const ctx = canvas.getContext("2d")
@@ -17,6 +17,7 @@ import { Circle, clear, fillCircle } from "./draw"
 		return
 	}
 
+	const speed = 500
 	const circle: Circle = {
 		x: width / 2,
 		y: height / 2,
@@ -24,16 +25,17 @@ import { Circle, clear, fillCircle } from "./draw"
 		startAngle: 0,
 		closeAngle: PI * 2,
 		fillstyle: "red",
-		dx: 100,
-		dy: 100,
+		dx: speed,
+		dy: speed,
 	}
+	const audio: HTMLAudioElement | null = document.getElementById("wall-sound")
 
 
 	clear(ctx, height, width)
 	fillCircle(circle, ctx)
 
 	let start: undefined | number;
-	function step(timestamp: number, ctx: CanvasRenderingContext2D) {
+	function step(timestamp: number, ctx: CanvasRenderingContext2D, canvas: HTMLCanvasElement) {
 		if (start === undefined) {
 			start = timestamp
 		}
@@ -43,23 +45,43 @@ import { Circle, clear, fillCircle } from "./draw"
 		circle.x += circle.dx * deltaTime
 		circle.y += circle.dy * deltaTime
 
-		if (circle.x + circle.radius > width || circle.x - circle.radius < 0) {
+		if (!audio) {
+			return
+		}
+		if (circle.x + circle.radius >= width || circle.x - circle.radius <= 0) {
+			audio.pause()
+			audio.load()
+			audio.play().then(() => {
+				console.log("at x")
+			})
 			circle.dx = - circle.dx
 		}
-		if (circle.y + circle.radius > height || circle.y - circle.radius < 0) {
+		if (circle.y + circle.radius >= height || circle.y - circle.radius <= 0) {
+			audio.pause()
+			audio.load()
+			audio.play().then(() => {
+				console.log("at y")
+			})
 			circle.dy = - circle.dy
 		}
+		canvas.height = window.innerHeight
+		canvas.width = window.innerWidth
+
+		height = canvas.height
+		width = canvas.width
+
 		clear(ctx, height, width)
 		fillCircle(circle, ctx)
 
 		requestAnimationFrame((timestamp) => {
-			step(timestamp, ctx)
+			step(timestamp, ctx, canvas)
 		})
 
 	}
 	requestAnimationFrame((timestamp) => {
-		step(timestamp, ctx)
+		step(timestamp, ctx, canvas)
 	})
+
 
 })()
 
