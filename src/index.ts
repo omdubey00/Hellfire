@@ -17,7 +17,7 @@ import { Circle, clear, fillCircle } from "./draw"
 		return
 	}
 
-	const speed = 500
+	const speed = 1
 	const circle: Circle = {
 		x: width / 2,
 		y: height / 2,
@@ -45,23 +45,10 @@ import { Circle, clear, fillCircle } from "./draw"
 		circle.x += circle.dx * deltaTime
 		circle.y += circle.dy * deltaTime
 
-		if (!audio) {
-			return
-		}
 		if (circle.x + circle.radius >= width || circle.x - circle.radius <= 0) {
-			audio.pause()
-			audio.load()
-			audio.play().then(() => {
-				console.log("at x")
-			})
 			circle.dx = - circle.dx
 		}
 		if (circle.y + circle.radius >= height || circle.y - circle.radius <= 0) {
-			audio.pause()
-			audio.load()
-			audio.play().then(() => {
-				console.log("at y")
-			})
 			circle.dy = - circle.dy
 		}
 		canvas.height = window.innerHeight
@@ -82,6 +69,22 @@ import { Circle, clear, fillCircle } from "./draw"
 		step(timestamp, ctx, canvas)
 	})
 
+	document.body.addEventListener("keydown", (e) => {
+		console.log(e.key)
+		if (e.key === "ArrowRight") {
+			circle.x += circle.dx * 10
+		}
+		else if (e.key === "ArrowLeft") {
+			circle.x -= circle.dx * 10
+		}
+		else if (e.key === "ArrowUp") {
+			circle.y -= circle.dy * 10
+		}
+		else if (e.key === "ArrowDown") {
+			circle.y += circle.dy * 10
+		}
+
+	})
 
 })()
 
