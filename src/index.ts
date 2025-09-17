@@ -19,7 +19,7 @@ import { V2 } from "./helper"
 		return
 	}
 
-	const speed = 1000
+	const speed = 500
 	const circle: Circle = {
 		position: new V2(width / 2, height / 2), // converted the normal x and y in vector coordinates. 
 		velocity: new V2(0, 0),
@@ -36,6 +36,10 @@ import { V2 } from "./helper"
 		'k': new V2(0, -speed),
 	}
 
+	const pressedKeys: any = new Set()
+
+
+
 
 	clear(ctx, height, width)
 	fillCircle(circle, ctx)
@@ -48,7 +52,16 @@ import { V2 } from "./helper"
 		const deltaTime = (timestamp - start) * 0.001 // this is you have got in seconds so now we can use it to do calculations in seconds
 		start = timestamp
 
+		circle.velocity = new V2(0, 0) // setting the velocity again and again in the requestframe.  
+
+		for (let key of pressedKeys) {
+			if (key in directionMap) {
+				circle.velocity = circle.velocity.add(directionMap[key])
+			}
+		}
+
 		circle.position = circle.position.add(circle.velocity.scale(deltaTime))
+
 
 		if (circle.position.x + circle.radius >= width || circle.position.x - circle.radius <= 0) {
 			circle.velocity.x = - circle.velocity.x
@@ -77,15 +90,11 @@ import { V2 } from "./helper"
 
 	document.body.addEventListener("keydown", (e) => {
 		console.log(e.key)
-		if (e.key in directionMap) {
-			circle.velocity = circle.velocity.add(directionMap[e.key])
-		}
+		pressedKeys.add(e.key)
 	})
 	document.body.addEventListener("keyup", (e) => {
 		console.log(e.key)
-		if (e.key in directionMap) {
-			circle.velocity = circle.velocity.sub(directionMap[e.key])
-		}
+		pressedKeys.delete(e.key)
 	})
 
 })()

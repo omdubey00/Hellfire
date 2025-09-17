@@ -2,7 +2,7 @@ import { V2 } from "./helper"
 
 export interface Circle {
 	position: V2
-	velocity: V2
+	velocity?: V2
 	radius: number
 	startAngle: number
 	closeAngle: number
