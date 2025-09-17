@@ -1,4 +1,6 @@
+import ts from "typescript"
 import { Circle, clear, fillCircle } from "./draw"
+import { V2 } from "./helper"
 
 (() => {
 	const canvas: HTMLCanvasElement | null = document.getElementById("hellfire")
@@ -17,18 +19,22 @@ import { Circle, clear, fillCircle } from "./draw"
 		return
 	}
 
-	const speed = 1
+	const speed = 1000
 	const circle: Circle = {
-		x: width / 2,
-		y: height / 2,
+		position: new V2(width / 2, height / 2), // converted the normal x and y in vector coordinates. 
+		velocity: new V2(0, 0),
 		radius: 50,
 		startAngle: 0,
 		closeAngle: PI * 2,
 		fillstyle: "red",
-		dx: speed,
-		dy: speed,
 	}
-	const audio: HTMLAudioElement | null = document.getElementById("wall-sound")
+
+	const directionMap = {
+		'f': new V2(speed, 0),
+		'a': new V2(-speed, 0),
+		'j': new V2(0, speed),
+		'k': new V2(0, -speed),
+	}
 
 
 	clear(ctx, height, width)
@@ -42,14 +48,14 @@ import { Circle, clear, fillCircle } from "./draw"
 		const deltaTime = (timestamp - start) * 0.001 // this is you have got in seconds so now we can use it to do calculations in seconds
 		start = timestamp
 
-		circle.x += circle.dx * deltaTime
-		circle.y += circle.dy * deltaTime
+		circle.position = circle.position.add(circle.velocity.scale(deltaTime))
 
-		if (circle.x + circle.radius >= width || circle.x - circle.radius <= 0) {
-			circle.dx = - circle.dx
+		if (circle.position.x + circle.radius >= width || circle.position.x - circle.radius <= 0) {
+			circle.velocity.x = - circle.velocity.x
 		}
-		if (circle.y + circle.radius >= height || circle.y - circle.radius <= 0) {
-			circle.dy = - circle.dy
+		if (circle.position.y + circle.radius >= height || circle.position.y - circle.radius <= 0) {
+			circle.velocity.y = - circle.velocity.y
+
 		}
 		canvas.height = window.innerHeight
 		canvas.width = window.innerWidth
@@ -71,19 +77,15 @@ import { Circle, clear, fillCircle } from "./draw"
 
 	document.body.addEventListener("keydown", (e) => {
 		console.log(e.key)
-		if (e.key === "ArrowRight") {
-			circle.x += circle.dx * 10
+		if (e.key in directionMap) {
+			circle.velocity = circle.velocity.add(directionMap[e.key])
 		}
-		else if (e.key === "ArrowLeft") {
-			circle.x -= circle.dx * 10
+	})
+	document.body.addEventListener("keyup", (e) => {
+		console.log(e.key)
+		if (e.key in directionMap) {
+			circle.velocity = circle.velocity.sub(directionMap[e.key])
 		}
-		else if (e.key === "ArrowUp") {
-			circle.y -= circle.dy * 10
-		}
-		else if (e.key === "ArrowDown") {
-			circle.y += circle.dy * 10
-		}
-
 	})
 
 })()
