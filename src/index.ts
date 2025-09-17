@@ -1,73 +1,39 @@
-import ts from "typescript"
-import { Circle, clear, fillCircle } from "./draw"
-import { V2 } from "./helper"
+import { Game } from "./helper"
+import { directionMap, radius, V2 } from "./global"
 
 (() => {
 	const canvas: HTMLCanvasElement | null = document.getElementById("hellfire")
 	if (!canvas) {
 		return
 	}
+
 	canvas.height = window.innerHeight
 	canvas.width = window.innerWidth
-
 	let height = canvas.height
 	let width = canvas.width
-	const PI = Math.PI
 
 	const ctx = canvas.getContext("2d")
 	if (!ctx) {
 		return
 	}
 
-	const speed = 500
-	const circle: Circle = {
-		position: new V2(width / 2, height / 2), // converted the normal x and y in vector coordinates. 
-		velocity: new V2(0, 0),
-		radius: 50,
-		startAngle: 0,
-		closeAngle: PI * 2,
-		fillstyle: "red",
-	}
-
-	const directionMap = {
-		'f': new V2(speed, 0),
-		'a': new V2(-speed, 0),
-		'j': new V2(0, speed),
-		'k': new V2(0, -speed),
-	}
-
-	const pressedKeys: any = new Set()
-
-
-
-
-	clear(ctx, height, width)
-	fillCircle(circle, ctx)
+	const game = new Game() // Here I am creating a new game Instance here we go. 
 
 	let start: undefined | number;
 	function step(timestamp: number, ctx: CanvasRenderingContext2D, canvas: HTMLCanvasElement) {
 		if (start === undefined) {
 			start = timestamp
 		}
-		const deltaTime = (timestamp - start) * 0.001 // this is you have got in seconds so now we can use it to do calculations in seconds
+		const dt = (timestamp - start) * 0.001 // this is you have got in seconds so now we can use it to do calculations in seconds
 		start = timestamp
+		game.update(dt)
 
-		circle.velocity = new V2(0, 0) // setting the velocity again and again in the requestframe.  
 
-		for (let key of pressedKeys) {
-			if (key in directionMap) {
-				circle.velocity = circle.velocity.add(directionMap[key])
-			}
+		if (game.pos.x + radius >= width || game.pos.x - radius <= 0) {
+			game.velocity.x = - game.velocity.x
 		}
-
-		circle.position = circle.position.add(circle.velocity.scale(deltaTime))
-
-
-		if (circle.position.x + circle.radius >= width || circle.position.x - circle.radius <= 0) {
-			circle.velocity.x = - circle.velocity.x
-		}
-		if (circle.position.y + circle.radius >= height || circle.position.y - circle.radius <= 0) {
-			circle.velocity.y = - circle.velocity.y
+		if (game.pos.y + radius >= height || game.pos.y - radius <= 0) {
+			game.velocity.y = - game.velocity.y
 
 		}
 		canvas.height = window.innerHeight
@@ -76,8 +42,7 @@ import { V2 } from "./helper"
 		height = canvas.height
 		width = canvas.width
 
-		clear(ctx, height, width)
-		fillCircle(circle, ctx)
+		game.render(ctx)
 
 		requestAnimationFrame((timestamp) => {
 			step(timestamp, ctx, canvas)
@@ -90,11 +55,12 @@ import { V2 } from "./helper"
 
 	document.body.addEventListener("keydown", (e) => {
 		console.log(e.key)
-		pressedKeys.add(e.key)
+		game.pressedKeys.add(e.key)
+		game.keydown(e)
 	})
 	document.body.addEventListener("keyup", (e) => {
 		console.log(e.key)
-		pressedKeys.delete(e.key)
+		game.pressedKeys.delete(e.key)
 	})
 
 })()

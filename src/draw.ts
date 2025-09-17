@@ -1,20 +1,11 @@
 import { V2 } from "./helper"
 
-export interface Circle {
-	position: V2
-	velocity?: V2
-	radius: number
-	startAngle: number
-	closeAngle: number
-	fillstyle: string
-}
 
-
-export function fillCircle(circle: Circle, context: CanvasRenderingContext2D) {
+export function fillCircle(pos: V2, radius: number, style: string, context: CanvasRenderingContext2D) {
 	const ctx = context
 	ctx.beginPath()
-	ctx.fillStyle = circle.fillstyle
-	ctx.arc(circle.position.x, circle.position.y, circle.radius, circle.startAngle, circle.closeAngle)
+	ctx.fillStyle = style
+	ctx.arc(pos.x, pos.y, radius, 0, Math.PI * 2)
 	ctx.fill()
 }
 
