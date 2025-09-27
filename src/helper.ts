@@ -1,6 +1,7 @@
 import { clear, fillCircle } from "./draw"
 import { directionMap, radius, speed, V2 } from "./global"
 
+
 export class Game {
 	pos: V2
 	velocity: V2
@@ -88,6 +89,44 @@ export class Bullet {
 		fillCircle(this.pos, this.radius, "red", ctx)
 	}
 
+}
+
+export class Player {
+	pos: V2
+	radius: number
+	name: string
+	velocity: V2
+	pressedKeys: Set<string>
+
+	constructor(pos: V2, name: string, velocity: V2) {
+		this.pos = pos
+		this.radius = radius
+		this.name = name
+		this.velocity = velocity
+		this.pressedKeys = new Set()
+	}
+
+	update(dt: number) {
+
+		for (let key of this.pressedKeys) {
+			if (key in directionMap) {
+				this.velocity = this.velocity.add(directionMap[key].scale(speed))
+			}
+		}
+		this.pos = this.pos.add(this.velocity.scale(dt))
+	}
+
+	render(ctx: CanvasRenderingContext2D) {
+		fillCircle(this.pos, this.radius, "red", ctx)
+	}
+
+	keydown(event: KeyboardEvent) {
+		this.pressedKeys.add(event.key)
+	}
+
+	keyUp(event: KeyboardEvent) {
+		this.pressedKeys.delete(event.key)
+	}
 }
 
 export class TutorialPopUp {
