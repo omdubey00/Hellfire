@@ -54,15 +54,16 @@ import { directionMap, radius, V2 } from "./global"
 	})
 
 	document.body.addEventListener("keydown", (e) => {
-		console.log(e.key)
 		game.pressedKeys.add(e.key)
 		game.keydown(e)
 	})
 	document.body.addEventListener("keyup", (e) => {
-		console.log(e.key)
 		game.pressedKeys.delete(e.key)
 	})
-
+	document.body.addEventListener("click", (e) => {
+		console.log('clicking the mouse')
+		game.onclick(e)
+	})
 })()
 
 
